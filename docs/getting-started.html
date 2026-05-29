@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started · LindbladTTN</title>
+  <meta name="description" content="A four-step LindbladTTN tutorial: single-qubit decay.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+</head>
+<body>
+  <div class="progress-bar"></div>
+
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Home</a></li>
+      <li><a href="installation.html" class="nav__link">Install</a></li>
+      <li><a href="getting-started.html" class="nav__link">Getting Started</a></li>
+      <li><a href="background.html" class="nav__link">Background</a></li>
+      <li><a href="structure.html" class="nav__link">Structure</a></li>
+      <li><a href="examples.html" class="nav__link">Examples</a></li>
+      <li><a href="api.html" class="nav__link">API</a></li>
+      <li><a href="input-generator.html" class="nav__link">Input Generator</a></li>
+      <li><a href="cite.html" class="nav__link">Cite</a></li>
+      <li><a href="contact.html" class="nav__link">Contact</a></li>
+    </ul>
+    <div class="nav__actions">
+      <div class="search-bar">
+        <i class="fa fa-search search-icon" aria-hidden="true"></i>
+        <input type="search" class="search-input" placeholder="Search…" aria-label="Search documentation">
+        <div class="search-results" role="listbox"></div>
+      </div>
+      <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+        <span class="theme-toggle-icon">☀️</span>
+      </button>
+      <a href="https://github.com/" class="btn-icon" aria-label="GitHub repository" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="page">
+    <div class="container">
+      <header class="page__header">
+        <span class="section__eyebrow">Tutorial</span>
+        <h1>Getting Started</h1>
+        <p class="section__desc">A complete LindbladTTN workflow in four steps, using single-qubit spontaneous emission — the smallest physically meaningful problem.</p>
+      </header>
+
+      <article class="article">
+        <p>The problem: a two-level system with frequency $\omega$ undergoing T1 decay at rate $\gamma$. The state evolves according to the <strong>Lindblad master equation</strong>:</p>
+        <p>$$
+          \frac{d\rho}{dt} = -i\,[H,\rho]
+          + \gamma\left(\sigma_-\,\rho\,\sigma_+ - \tfrac{1}{2}\{\sigma_+\sigma_-,\,\rho\}\right),
+          \qquad H = \tfrac{\omega}{2}\sigma_z.
+        $$</p>
+        <p>Starting from the excited state $\rho_0 = |1\rangle\langle 1|$, the population $\langle\sigma_z\rangle$ should decay exponentially from $-1$ to $+1$ (ground state).</p>
+
+        <h2 id="step1">1. Define the system</h2>
+        <p>Build the Pauli operators, the Hamiltonian $H_0$, and the list of Lindblad jump operators. Each jump operator is a tuple <code>(γ, L)</code>: the rate and the operator.</p>
+        <div class="code-block">
+          <pre><code class="language-python">import numpy as np
+from lindblad_ttn import LindbladTTN
+
+# Pauli operators
+sx = np.array([[0,  1], [1,  0]], dtype=complex)
+sy = np.array([[0, -1j], [1j, 0]], dtype=complex)
+sz = np.array([[1,  0], [0, -1]], dtype=complex)
+sm = np.array([[0,  0], [1,  0]], dtype=complex)   # |0><1| lowering
+
+omega = 1.0   # qubit frequency
+gamma = 0.3   # T1 decay rate
+
+H0    = 0.5 * omega * sz
+L_ops = [(gamma, sm)]</code></pre>
+        </div>
+
+        <h2 id="step2">2. Build the solver</h2>
+        <p>Instantiate <code>LindbladTTN</code>. The four most important arguments are <code>n_sites</code>, <code>bond_dim</code>, <code>topology</code>, and <code>strategy</code>.</p>
+        <div class="code-block">
+          <pre><code class="language-python">solver = LindbladTTN(
+    H0=H0,
+    f=None, V=None,            # no time-dependent drive
+    L_ops=L_ops,
+    n_sites=1,                 # one qubit
+    bond_dim=4,                # max TTN rank
+    topology="train",          # or "tree" for balanced binary tree
+    strategy="ps1",            # or "vmf" for adaptive ODE integration
+    device="cpu",              # or "cuda"
+    dtype="complex128",
+)</code></pre>
+        </div>
+        <p>For a single qubit the bond dimension is over-specified — the state lives in a 4-dimensional Liouville space and even <code>bond_dim=4</code> is exact. For larger systems, the bond dimension is the key knob between cost and accuracy.</p>
+
+        <div class="callout">
+          <div class="callout__title"><i class="fa fa-lightbulb"></i> Train or tree?</div>
+          <p>Use <code>topology="train"</code> for chains and 1D problems, <code>"tree"</code> when every qubit interacts with many others. The two topologies hold the same information; their bond-dimension scaling differs by problem structure.</p>
+        </div>
+
+        <h2 id="step3">3. Run the evolution</h2>
+        <p>Call <code>solver.run(...)</code> with an initial density matrix and the time grid. Observables are tracked over time and returned as numpy arrays.</p>
+        <div class="code-block">
+          <pre><code class="language-python">rho0 = np.array([[1.0, 0.0],
+                 [0.0, 0.0]], dtype=complex)   # |1><1|, excited state
+
+result = solver.run(
+    rho0=rho0,
+    t_span=(0.0, 15.0),
+    dt=0.01,
+    observables=[sz, sx, sy],
+    save_every=1,
+    verbose=True,
+)</code></pre>
+        </div>
+        <p>The expectation value of an observable $O$ is computed at every saved step as $\langle O\rangle(t) = \mathrm{Tr}\!\left[O\,\rho(t)\right]$.</p>
+
+        <h2 id="step4">4. Inspect results</h2>
+        <p>The returned <code>LindbladResult</code> dataclass holds everything the solver saved during the run.</p>
+        <div class="code-block">
+          <pre><code class="language-python">import matplotlib.pyplot as plt
+
+print("Final trace:", result.norm[-1])              # ~1.0 (trace-preserving)
+print("Max bond dim:", result.bond_dims.max())
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(result.times, result.expect[0].real, label=r"$\langle\sigma_z\rangle$")
+ax.plot(result.times, result.expect[1].real, label=r"$\langle\sigma_x\rangle$")
+ax.plot(result.times, result.expect[2].real, label=r"$\langle\sigma_y\rangle$")
+ax.set_xlabel("t"); ax.set_ylabel("expectation"); ax.legend()
+plt.show()
+
+# Save a full plain-text report
+result.save_txt("single_qubit_decay.txt")</code></pre>
+        </div>
+
+        <p>You should see $\langle\sigma_z\rangle$ rise from $-1$ to $+1$ (ground state population) with the time constant $1/\gamma$, while $\langle\sigma_x\rangle$ and $\langle\sigma_y\rangle$ oscillate at $\omega$ and decay at $\gamma/2$. That's the spontaneous emission picture exactly.</p>
+
+        <h2 id="next">Next steps</h2>
+        <ul>
+          <li><a href="examples.html">Examples</a> — Bell-state generation, driven qubits, multi-qubit cat states, scaling benchmarks.</li>
+          <li><a href="background.html">Background</a> — the math behind the master equation, TTN, and TDVP.</li>
+          <li><a href="api.html">API reference</a> — every constructor argument and result field.</li>
+          <li><a href="input-generator.html">Input generator</a> — autogenerate a starting script for your own problem.</li>
+        </ul>
+
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand-name">LindbladTTN</div>
+        <p class="footer__tagline">Lindblad master equation solver via Tree Tensor Networks</p>
+        <p style="font-size:0.8rem; color: var(--text-muted);">Open source · MIT License</p>
+      </div>
+      <div>
+        <div class="footer__col-title">Docs</div>
+        <ul class="footer__links">
+          <li><a href="installation.html" class="footer__link">Installation</a></li>
+          <li><a href="getting-started.html" class="footer__link">Getting Started</a></li>
+          <li><a href="background.html" class="footer__link">Background</a></li>
+          <li><a href="structure.html" class="footer__link">Structure</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">More</div>
+        <ul class="footer__links">
+          <li><a href="examples.html" class="footer__link">Examples</a></li>
+          <li><a href="api.html" class="footer__link">API Reference</a></li>
+          <li><a href="input-generator.html" class="footer__link">Input Generator</a></li>
+          <li><a href="cite.html" class="footer__link">Cite</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Links</div>
+        <ul class="footer__links">
+          <li><a href="https://github.com/" class="footer__link" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></li>
+          <li><a href="contact.html" class="footer__link"><i class="fa fa-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+          <span class="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

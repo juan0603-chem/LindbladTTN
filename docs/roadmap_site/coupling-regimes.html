@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-audience-active="researcher">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupling Regimes — LindbladTTN Hybrid Platforms</title>
+  <meta name="description" content="Jaynes–Cummings, Tavis–Cummings, dispersive coupling, ultrastrong regime, single-photon Kerr, and longitudinal coupling.">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="assets/roadmap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <script src="assets/roadmap.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" role="navigation" aria-label="Roadmap navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN · Roadmap</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Overview</a></li>
+      <li><a href="molecular-spins.html" class="nav__link">Molecular Spins</a></li>
+      <li><a href="sc-elements.html" class="nav__link">SC Elements</a></li>
+      <li><a href="coupling-regimes.html" class="nav__link">Coupling</a></li>
+      <li><a href="effective-hamiltonians.html" class="nav__link">Effective H</a></li>
+      <li><a href="qec-codes.html" class="nav__link">QEC</a></li>
+      <li><a href="code-roadmap.html" class="nav__link">Code Roadmap</a></li>
+      <li><a href="changelog.html" class="nav__link">Changelog</a></li>
+      <li><a href="references.html" class="nav__link">References</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="../index.html" class="btn-icon" aria-label="Back to main docs"><i class="fa fa-house"></i></a>
+    </div>
+  </nav>
+
+  <div class="audience-bar">
+    <span class="audience-bar__label">Audience depth:</span>
+    <div class="audience-bar__group" role="group" aria-label="Audience level">
+      <button class="audience-btn" data-level="student"    aria-pressed="false">Student</button>
+      <button class="audience-btn" data-level="researcher" aria-pressed="true">Researcher</button>
+      <button class="audience-btn" data-level="expert"     aria-pressed="false">Expert</button>
+    </div>
+  </div>
+
+  <main class="roadmap-main">
+
+    <header>
+      <span class="roadmap-eyebrow">Page 4 of 8 · Physics</span>
+      <h1 class="roadmap-title">Coupling regimes</h1>
+      <p class="roadmap-subtitle">
+        How spins talk to resonators — Jaynes–Cummings, Tavis–Cummings, dispersive, ultrastrong,
+        Kerr-nonlinear, and longitudinal couplings, with the boundaries between them.
+      </p>
+    </header>
+
+    <section class="roadmap-section">
+      <div class="toc">
+        <div class="toc__head">On this page</div>
+        <ol>
+          <li><a href="#jc">Jaynes–Cummings: one spin, one cavity</a></li>
+          <li><a href="#tc">Tavis–Cummings: many spins, one cavity</a></li>
+          <li><a href="#disp">Dispersive regime &amp; the $\chi$ shift</a></li>
+          <li><a href="#ultra">Ultrastrong and deep-strong regimes</a></li>
+          <li><a href="#kerr">Single-photon Kerr</a></li>
+          <li><a href="#long">Longitudinal coupling</a></li>
+          <li><a href="#summary">Regime summary</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="jc">
+      <h2>1 · Jaynes–Cummings — one spin, one cavity</h2>
+      <p>The canonical building block: a two-level system (spin) coupled to a single bosonic mode (cavity) in the rotating-wave approximation.</p>
+
+      <div class="eq-block">
+$$
+H_\text{JC} = \omega_c\, a^\dagger a + \tfrac{1}{2}\omega_q\, \sigma_z + g\,(a^\dagger \sigma^- + a\, \sigma^+).
+$$
+      </div>
+
+      <p>Two regimes are set by the ratio of the coupling $g$ to the detuning $\Delta = \omega_q - \omega_c$:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card__head"><span class="card__id">|Δ| ≪ g</span></div>
+          <h3 class="card__title">Resonant</h3>
+          <p class="card__body">
+            Vacuum Rabi oscillations at frequency $2g$.  Used for direct iSWAP / SWAP gates and for
+            cavity-mediated quantum-state transfer.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card__head"><span class="card__id">|Δ| ≫ g</span></div>
+          <h3 class="card__title">Dispersive</h3>
+          <p class="card__body">
+            Cavity carries a qubit-state-dependent shift $\chi$.  The basis of standard cQED readout
+            and the workhorse for CZ-like two-qubit gates.
+          </p>
+        </div>
+      </div>
+
+      <div data-audience="researcher expert">
+        <p>The RWA is excellent when $g \ll \omega_q, \omega_c$ and $|\Delta| \ll \omega_q + \omega_c$.  Outside that window, counter-rotating terms $a\sigma^- + a^\dagger \sigma^+$ matter and you must use the full Rabi Hamiltonian.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="tc">
+      <h2>2 · Tavis–Cummings — many spins, one cavity</h2>
+
+      <div class="eq-block">
+$$
+H_\text{TC}
+= \omega_c\, a^\dagger a
++ \sum_{i=1}^{N} \tfrac{1}{2}\omega_q^{(i)}\, \sigma_z^{(i)}
++ \sum_{i=1}^{N} g_i\,(a^\dagger \sigma^-_i + a\, \sigma^+_i).
+$$
+      </div>
+
+      <p>
+        With $N$ identical spins the collective coupling enhances by $\sqrt{N}$: $g_\text{coll} = g\sqrt{N}$.  A weak single-spin coupling becomes strong at the ensemble level, opening the door to <em>spin ensemble memories</em>.
+      </p>
+
+      <div data-audience="researcher expert">
+        <p>
+          For our roadmap, Tavis–Cummings is the natural Hamiltonian for the <strong>cavity-centred tree topology</strong> (M9): all spins on the leaves, the cavity on the interior, mediated entanglement along the bonds.  TTN bond dimension stays low because $H_\text{TC}$ preserves total excitation number — the entanglement is "skinny."
+        </p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="disp">
+      <h2>3 · Dispersive regime &amp; the $\chi$ shift</h2>
+
+      <p>When $|\Delta| \gg g$, eliminate the cavity adiabatically (or use Schrieffer–Wolff to 2nd order — see <a href="effective-hamiltonians.html">page 5</a>):</p>
+
+      <div class="eq-block">
+$$
+H_\text{disp}
+\approx
+\left(\omega_c + \chi\,\sigma_z\right) a^\dagger a
++
+\tfrac{1}{2}\left(\omega_q + \chi\right)\sigma_z,
+\qquad
+\chi = \frac{g^2}{\Delta} .
+$$
+      </div>
+
+      <p class="eq-caption">The cavity frequency depends on the qubit state — the basis of dispersive readout.</p>
+
+      <p>Two spins both dispersively coupled to the same cavity acquire a cavity-mediated exchange:</p>
+
+      <div class="eq-block">
+$$
+J_\text{eff}
+\sim
+\frac{g_1 g_2}{\Delta}
+\quad\text{(static)},
+\qquad
+J_\text{eff}(t) \sim \frac{g_1 g_2}{\Delta(t)}
+\quad\text{(parametric)}.
+$$
+      </div>
+
+      <div class="callout callout--info" data-audience="researcher expert">
+        <div class="callout__head"><i class="fa fa-bullseye"></i> Why this is the operating point</div>
+        <p style="margin:0;">
+          The dispersive regime gives <em>three</em> things at once: state-dependent readout, virtual-photon exchange
+          between spins, and protection from cavity loss (the qubit only borrows the cavity).
+          Almost every two-qubit gate proposed in this roadmap lives here.
+        </p>
+      </div>
+
+      <div data-audience="expert">
+        <h4>Higher-order corrections</h4>
+        <p>Beyond 2nd-order SW, the next term is the qubit Lamb shift $\chi^{(2)} = -g^4 / \Delta^3$ and a photon-number-dependent
+        renormalisation of $\chi$ that limits readout fidelity at high photon number ("critical photon number" $n_\text{crit} = \Delta^2/4g^2$).  M5 will deliver these to 4th order programmatically.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="ultra">
+      <h2>4 · Ultrastrong &amp; deep-strong regimes</h2>
+
+      <p>The coupling strength $g/\omega$ defines four regimes:</p>
+
+      <table class="r-table">
+        <thead><tr><th>Name</th><th>Range</th><th>Counter-rotating terms?</th><th>RWA?</th></tr></thead>
+        <tbody>
+          <tr><td>Weak</td><td>$g/\omega \lesssim 10^{-3}$</td><td>negligible</td><td>excellent</td></tr>
+          <tr><td>Strong</td><td>$10^{-3} \lesssim g/\omega \lesssim 0.1$</td><td>small</td><td>good</td></tr>
+          <tr><td>Ultrastrong</td><td>$0.1 \lesssim g/\omega \lesssim 1$</td><td>important</td><td>breaks down</td></tr>
+          <tr><td>Deep-strong</td><td>$g/\omega \gtrsim 1$</td><td>dominant</td><td>nonsense</td></tr>
+        </tbody>
+      </table>
+
+      <div data-audience="researcher expert">
+        <p>In molecular-spin platforms <em>without</em> a SC qubit, $g$ rarely exceeds the kHz range, putting us deep in the
+        weak-coupling regime.  With a constriction LC resonator + chemically anchored spin one can reach $g \sim 1\,\text{MHz}$
+        and start to enter strong coupling.</p>
+
+        <p>The transmon-spin coupling is mediated electrically through the same resonator and can reach $g/2\pi \sim 50$–100 MHz.
+        That puts <em>only the transmon</em> in the strong coupling regime; the spin remains weak-to-strong.  Ultrastrong is the
+        SC-side ambition for the next decade.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="kerr">
+      <h2>5 · Single-photon Kerr</h2>
+
+      <p>The Duffing nonlinearity of a transmon (or fluxonium) generates a Kerr term on the cavity it dresses:</p>
+
+      <div class="eq-block">
+$$
+H_\text{Kerr} = - \tfrac{K}{2}\, a^\dagger a^\dagger a a, \qquad
+K \approx \frac{\chi^2}{\alpha}
+\quad\text{(dispersive limit)} .
+$$
+      </div>
+
+      <ul>
+        <li>$K$ is the <em>per-photon</em> frequency shift of the cavity.</li>
+        <li>$K \gtrsim \kappa$ enables <strong>photon-number-resolved spectroscopy</strong> and <strong>cat-state encoding</strong> in the cavity.</li>
+        <li>$K\, a^\dagger a^\dagger a a$ commutes with $a^\dagger a$ — it conserves photon number, so cat states are stationary.</li>
+      </ul>
+
+      <div data-audience="expert">
+        <div class="callout callout--info">
+          <div class="callout__head"><i class="fa fa-lightbulb"></i> Why this matters</div>
+          <p style="margin:0;">
+            A cavity with single-photon Kerr is the substrate for <strong>bosonic encodings</strong> (cat / GKP qubits).
+            In a hybrid platform, encoding the logical qubit in the cavity and using the molecular spin as an ancilla
+            for syndrome extraction is one of the most promising fault-tolerant architectures available.
+            This is well beyond the M1–M10 milestones but worth designing for from the start.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="long">
+      <h2>6 · Longitudinal coupling</h2>
+
+      <p>Instead of the transverse $g(\sigma_+ a + \sigma_- a^\dagger)$, one can engineer a <em>longitudinal</em> coupling:</p>
+
+      <div class="eq-block">
+$$
+H_\text{long} = g_z\, \sigma_z\, (a + a^\dagger).
+$$
+      </div>
+
+      <p>Modulating $g_z(t)$ at the cavity frequency turns this into a fast, QND, scalable readout interaction — no virtual photons, no Purcell limit, no critical photon number.</p>
+
+      <div data-audience="researcher expert">
+        <p>For molecular spins, longitudinal coupling can be engineered by placing the spin in a region of <em>field-gradient</em> rather than uniform field, so that displacement of the spin (via electric driving) modulates $g_z$.  This is an experimental frontier — but a clean simulation target once M2 + M3 + M4 land.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="summary">
+      <h2>7 · Regime summary</h2>
+
+      <table class="r-table">
+        <thead>
+          <tr>
+            <th>Coupling</th>
+            <th>Hamiltonian</th>
+            <th>Best for</th>
+            <th>LindbladTTN status (v0.3.0)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Jaynes–Cummings (resonant)</td>
+            <td>$g(a^\dagger\sigma^-+\text{h.c.})$</td>
+            <td>Direct iSWAP, state transfer</td>
+            <td>✓ <code>templates.jaynes_cummings</code></td>
+          </tr>
+          <tr>
+            <td>Tavis–Cummings</td>
+            <td>$\sum_i g_i(a^\dagger\sigma^-_i+\text{h.c.})$</td>
+            <td>Spin-ensemble memory</td>
+            <td>✓ <code>templates.tavis_cummings</code></td>
+          </tr>
+          <tr>
+            <td>Dispersive</td>
+            <td>$\chi\, a^\dagger a\,\sigma_z$</td>
+            <td>Readout, CZ-like gates, $J_\text{eff}$</td>
+            <td>✓ <code>templates.dispersive_readout</code> + <code>effective.dispersive_shift</code></td>
+          </tr>
+          <tr>
+            <td>Ultrastrong (Rabi)</td>
+            <td>$g\sigma_x(a + a^\dagger)$</td>
+            <td>Non-perturbative regime studies</td>
+            <td>✓ direct via H_terms with both $\sigma_+ a^\dagger$ and $\sigma_+ a$</td>
+          </tr>
+          <tr>
+            <td>Kerr</td>
+            <td>$-K\, a^{\dagger 2}a^2/2$</td>
+            <td>Photon-resolved readout, cat codes</td>
+            <td>✓ <code>BosonSite.kerr(K)</code></td>
+          </tr>
+          <tr>
+            <td>Longitudinal</td>
+            <td>$g_z\sigma_z(a+a^\dagger)$</td>
+            <td>QND readout, scalable measurement</td>
+            <td>✓ direct via <code>(g_z, {q: sz, c: x*√2})</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout--warn">
+        <div class="callout__head"><i class="fa fa-triangle-exclamation"></i> The molecular-spin caveat</div>
+        <p style="margin:0;">
+          The intrinsic magnetic-dipole coupling between a single molecular spin and a microwave cavity is genuinely small (~1–10 kHz)
+          for a uniform mode.  Reaching strong coupling requires either (a) ensemble enhancement via Tavis–Cummings $\sqrt{N}$,
+          (b) field-concentrating constriction resonators, or (c) coupling through a transmon mediator with electric-dipole coupling.
+          The roadmap supports all three.
+        </p>
+      </div>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <a href="sc-elements.html"><small>← Previous</small> SC elements</a>
+      <a href="effective-hamiltonians.html"><small>Next →</small> Effective Hamiltonians</a>
+    </nav>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+    </div>
+  </footer>
+
+</body>
+</html>

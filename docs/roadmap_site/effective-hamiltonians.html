@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-audience-active="researcher">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Effective Hamiltonians — LindbladTTN Hybrid Platforms</title>
+  <meta name="description" content="Schrieffer–Wolff transformations, Magnus / RWA averaging, dispersive-shift extraction, ZZ crosstalk, cross-resonance gates, and cavity-mediated J_eff.">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="assets/roadmap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <script src="assets/roadmap.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" role="navigation" aria-label="Roadmap navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN · Roadmap</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Overview</a></li>
+      <li><a href="molecular-spins.html" class="nav__link">Molecular Spins</a></li>
+      <li><a href="sc-elements.html" class="nav__link">SC Elements</a></li>
+      <li><a href="coupling-regimes.html" class="nav__link">Coupling</a></li>
+      <li><a href="effective-hamiltonians.html" class="nav__link">Effective H</a></li>
+      <li><a href="qec-codes.html" class="nav__link">QEC</a></li>
+      <li><a href="code-roadmap.html" class="nav__link">Code Roadmap</a></li>
+      <li><a href="changelog.html" class="nav__link">Changelog</a></li>
+      <li><a href="references.html" class="nav__link">References</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="../index.html" class="btn-icon" aria-label="Back to main docs"><i class="fa fa-house"></i></a>
+    </div>
+  </nav>
+
+  <div class="audience-bar">
+    <span class="audience-bar__label">Audience depth:</span>
+    <div class="audience-bar__group" role="group" aria-label="Audience level">
+      <button class="audience-btn" data-level="student"    aria-pressed="false">Student</button>
+      <button class="audience-btn" data-level="researcher" aria-pressed="true">Researcher</button>
+      <button class="audience-btn" data-level="expert"     aria-pressed="false">Expert</button>
+    </div>
+  </div>
+
+  <main class="roadmap-main">
+
+    <header>
+      <span class="roadmap-eyebrow">Page 5 of 8 · Physics</span>
+      <h1 class="roadmap-title">Effective Hamiltonians &amp; control engineering</h1>
+      <p class="roadmap-subtitle">
+        From bare cQED Hamiltonians to gate-engineering recipes: Schrieffer–Wolff for the dispersive limit,
+        Magnus for time-averaged drives, and the resulting catalogue of two-qubit gates.
+      </p>
+    </header>
+
+    <section class="roadmap-section">
+      <div class="toc">
+        <div class="toc__head">On this page</div>
+        <ol>
+          <li><a href="#sw">Schrieffer–Wolff transformation</a></li>
+          <li><a href="#chi">Dispersive-shift derivation</a></li>
+          <li><a href="#magnus">Magnus expansion &amp; RWA</a></li>
+          <li><a href="#zz">ZZ crosstalk</a></li>
+          <li><a href="#gates">Catalogue of two-qubit gates</a></li>
+          <li><a href="#code">In code: SW + Magnus utilities (M5)</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="sw">
+      <h2>1 · Schrieffer–Wolff transformation</h2>
+
+      <p>Start with $H = H_0 + V$ where $V$ couples energy-distinct subspaces.  Look for an anti-Hermitian $S$ such that</p>
+
+      <div class="eq-block">
+$$
+H_\text{eff} = e^{-S} H e^S
+=
+H_0 + V + [V, S] + \tfrac{1}{2}[[V,S], S] + \ldots
+$$
+      </div>
+
+      <p>has no off-diagonal block between the subspaces.</p>
+
+      <div data-audience="researcher expert">
+        <p>The recursion gives $S^{(n)}$ from $[H_0, S^{(n)}] = V_\text{od}^{(n-1)}$, with the off-diagonal part of the previous order.  Up to fourth order:</p>
+
+        <div class="eq-block">
+$$
+\begin{aligned}
+H_\text{eff}^{(2)} &= H_0 + \tfrac{1}{2}\,[V, S^{(1)}], \\
+H_\text{eff}^{(4)} &= H_\text{eff}^{(2)} + \tfrac{1}{24}\,[[ [V,S^{(1)}], S^{(1)}], S^{(1)}].
+\end{aligned}
+$$
+        </div>
+      </div>
+
+      <div data-audience="expert">
+        <p>For the typical cQED case $H_0 = \omega_c a^\dagger a + \tfrac{1}{2}\omega_q \sigma_z$ and $V = g(a^\dagger\sigma^- + a\sigma^+)$, the generator is</p>
+        <div class="eq-block">
+$$
+S^{(1)} = \tfrac{g}{\Delta}(a^\dagger\sigma^- - a\sigma^+),
+\qquad
+\Delta = \omega_q - \omega_c,
+$$
+        </div>
+        <p>and $[V, S^{(1)}] = 2 g^2 / \Delta\,\big(a^\dagger a\, \sigma_z + \tfrac{1}{2}\sigma_z\big)$ giving the dispersive Hamiltonian directly.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="chi">
+      <h2>2 · Dispersive shift &mdash; from SW to $\chi$</h2>
+
+      <div class="eq-block">
+$$
+H_\text{disp} = \omega_c\,a^\dagger a + \tfrac{1}{2}\tilde\omega_q\,\sigma_z + \chi\,a^\dagger a\, \sigma_z,
+\quad
+\chi = \frac{g^2}{\Delta},
+\quad
+\tilde\omega_q = \omega_q + \chi.
+$$
+      </div>
+
+      <p>For a transmon (which is multilevel), use SW including the $|2\rangle$ level. The result is</p>
+
+      <div class="eq-block">
+$$
+\chi_\text{transmon} = -\frac{g^2}{\Delta}\cdot\frac{\alpha}{\Delta + \alpha},
+$$
+      </div>
+      <p class="eq-caption">Negative $\chi$ for $\Delta &gt; 0$: a transmon shifts the cavity <em>down</em> when excited.</p>
+
+      <div data-audience="researcher expert">
+        <p>Connecting two qubits dispersively through one cavity gives a cavity-mediated $ZZ$:</p>
+
+        <div class="eq-block">
+$$
+H_{ZZ} = J_\text{eff}\, \sigma_z^{(1)} \sigma_z^{(2)},
+\qquad
+J_\text{eff} = \frac{g_1 g_2}{2}\left(\frac{1}{\Delta_1} + \frac{1}{\Delta_2}\right) - \frac{g_1 g_2 \alpha}{\Delta_1\Delta_2}
+\;\text{(transmon)}.
+$$
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="magnus">
+      <h2>3 · Magnus expansion &amp; RWA averaging</h2>
+
+      <p>For time-dependent drives, go into a rotating frame and average.  The Magnus expansion writes</p>
+
+      <div class="eq-block">
+$$
+U(T) = \exp\!\Big[ \sum_{k\geq 1} \Omega_k(T) \Big],
+\quad
+\Omega_1 = -i\int_0^T H(t)\,dt,
+\quad
+\Omega_2 = -\tfrac{1}{2}\int_0^T\!\!\int_0^{t_1}[H(t_1), H(t_2)]\,dt_2\,dt_1.
+$$
+      </div>
+
+      <p>Truncating at $\Omega_1$ gives the textbook RWA. Higher Magnus terms produce <em>Bloch–Siegert</em>-type shifts and corrections to gate fidelities.</p>
+
+      <div data-audience="researcher expert">
+        <p>For a Gaussian pulse with bandwidth $\sigma$ driving a qubit with anharmonicity $\alpha$, the DRAG correction comes out of a 2nd-order Magnus expansion and a Schrieffer–Wolff for the leakage subspace.  M5 + M6 together expose both as composable helpers.</p>
+      </div>
+
+      <div class="callout callout--info" data-audience="expert">
+        <div class="callout__head"><i class="fa fa-lightbulb"></i> Magnus &mdash; when it fails</div>
+        <p style="margin:0;">
+          Magnus converges as long as $\int |H(t)|\,dt \lesssim 1$.  In strong-drive limit (saturated Rabi),
+          go to Floquet theory directly: diagonalise $H_F = H(t) - i\partial_t$ in a Fourier basis.  This is the M5 stretch goal.
+        </p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="zz">
+      <h2>4 · ZZ crosstalk</h2>
+
+      <p>Even at zero drive, two transmons coupled by a static $g$ acquire a static $ZZ$ residual:</p>
+
+      <div class="eq-block">
+$$
+\zeta = E_{11} - E_{10} - E_{01} + E_{00} \approx \frac{2 J^2 \alpha}{\Delta(\Delta + \alpha)} ,
+$$
+      </div>
+
+      <p class="eq-caption">where $J = g_1 g_2 / 2(1/\Delta_1 + 1/\Delta_2)$ is the effective direct coupling.</p>
+
+      <p>$\zeta$ is the dominant systematic error in transmon stacks.  Mitigation strategies — flag for M8:</p>
+      <ul>
+        <li><strong>Detuning into a "magic point"</strong> where $\zeta = 0$.</li>
+        <li><strong>Tunable couplers</strong> (transmon mediator) that turn off $g_\text{eff}$.</li>
+        <li><strong>Echoed cross-resonance</strong> that cancels $\zeta$ over the gate duration.</li>
+      </ul>
+    </section>
+
+    <section class="roadmap-section" id="gates">
+      <h2>5 · Catalogue of two-qubit gates</h2>
+
+      <p>Every two-qubit gate the surface and color code need can be built from the Hamiltonians on the previous page. The recipe table below maps each gate to its driving mechanism.</p>
+
+      <table class="r-table">
+        <thead>
+          <tr>
+            <th>Gate</th>
+            <th>Mechanism</th>
+            <th>Active Hamiltonian</th>
+            <th>Where</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>iSWAP</td>
+            <td>Resonant JC exchange</td>
+            <td>$g(\sigma^+_1\sigma^-_2 + \text{h.c.})$</td>
+            <td>Resonant cavity bus, or direct exchange</td>
+          </tr>
+          <tr>
+            <td>CZ</td>
+            <td>Adiabatic $|11\rangle\leftrightarrow|02\rangle$</td>
+            <td>$J\,\sigma^+_1\sigma^-_2$ + transmon $|2\rangle$</td>
+            <td>Tuneable transmons</td>
+          </tr>
+          <tr>
+            <td>CR (cross-resonance)</td>
+            <td>Drive q1 at $\omega_2$</td>
+            <td>$\Omega_d\cos(\omega_2 t)\sigma_x^{(1)} \to ZX$ in dispersive limit</td>
+            <td>Fixed-frequency transmons (IBM)</td>
+          </tr>
+          <tr>
+            <td>Parametric iSWAP</td>
+            <td>Modulate $\Delta(t)$ at $\omega_1-\omega_2$</td>
+            <td>$J(t) = J_0 + J_1\cos(\omega_\text{mod}t)$</td>
+            <td>Flux-modulated transmons</td>
+          </tr>
+          <tr>
+            <td>Cavity-mediated $J_\text{eff}$</td>
+            <td>Dispersive virtual photon</td>
+            <td>$\chi_1\chi_2/\Delta\,\sigma_z^{(1)}\sigma_z^{(2)}$</td>
+            <td>Both spins coupled to same bus</td>
+          </tr>
+          <tr>
+            <td>Bell pair via JC</td>
+            <td>$\pi/2$ Rabi swap + readout</td>
+            <td>$g\sqrt{2}$ between $|01\rangle$ and $|10\rangle$</td>
+            <td>JC bus</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout--tip">
+        <div class="callout__head"><i class="fa fa-circle-check"></i> All these gates are simulable in LindbladTTN</div>
+        <p style="margin:0;">
+          Once M2+M3+M4 land, every Hamiltonian above is a one-line template call.  Drive shapes for gate timing
+          come from M6.  Calibration sweeps to extract optimal pulse parameters are exactly what the steady-state
+          and energy-level solver (M7) is for.
+        </p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="code">
+      <h2>6 · In code: SW + Magnus utilities (M5, shipped)</h2>
+
+      <div class="code-block">
+<pre><code class="language-python">import numpy as np
+from lindblad_ttn.effective import (
+    schrieffer_wolff, dispersive_shift, magnus_average,
+)
+
+# ---------- 1) Numerical χ from full diagonalisation ----------
+# Build a JC Hamiltonian in (qubit ⊗ cavity) basis (small dense matrix).
+sz = np.array([[1, 0], [0, -1]], dtype=complex)
+sp = np.array([[0, 1], [0, 0]], dtype=complex)
+sm = np.array([[0, 0], [1, 0]], dtype=complex)
+Nc = 8
+a = np.zeros((Nc, Nc), dtype=complex)
+for n in range(1, Nc):
+    a[n - 1, n] = np.sqrt(n)
+adag = a.T.conj()
+omega_q, omega_c, g = 5.0, 4.7, 0.05
+H = (0.5*omega_q*np.kron(sz, np.eye(Nc))
+     + omega_c*np.kron(np.eye(2), adag@a)
+     + g*np.kron(sp, a) + g*np.kron(sm, adag))
+
+chi_num = dispersive_shift(H, qubit_dim=2, cavity_dim=Nc, n_max=1)
+chi_sw  = g**2 / (omega_q - omega_c)
+print(f"chi (numeric)  = {chi_num:.5f}")
+print(f"chi (g²/Δ)     = {chi_sw:.5f}")  # leading-order SW
+
+# ---------- 2) Schrieffer-Wolff block-diagonalisation ----------
+H0 = np.diag([0.0, 1.0])
+V  = 0.05 * np.array([[0, 1], [1, 0]], dtype=complex)
+H_eff = schrieffer_wolff(H0, V, projector_A=np.diag([1, 0]).astype(complex),
+                         order=4)
+# off-diagonal entry of H_eff is suppressed to O(V³)
+
+# ---------- 3) Magnus order-2 time-averaging ----------
+sx = np.array([[0, 1], [1, 0]], dtype=complex)
+def H_t(t):
+    return 1.0 * np.cos(2.0 * t) * sx
+H_avg = magnus_average(H_t, period=np.pi, n_points=256, order=2)
+# H_avg should be ≈ 0 (cosine averages to zero over a period)
+</code></pre>
+      </div>
+
+      <p>This page is the bridge between the bare physics (pages 2–4) and the QEC engineering (page 6).  Every gate the codes need is a recipe in the table above; the shipped <code>effective</code> module turns those recipes into χ values, time-averaged Hamiltonians, and block-diagonalisations.</p>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <a href="coupling-regimes.html"><small>← Previous</small> Coupling regimes</a>
+      <a href="qec-codes.html"><small>Next →</small> QEC codes</a>
+    </nav>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+    </div>
+  </footer>
+
+</body>
+</html>
