@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installation · LindbladTTN</title>
+  <meta name="description" content="Install LindbladTTN: requirements, pip install from source, GPU setup.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+</head>
+<body>
+  <div class="progress-bar"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Home</a></li>
+      <li><a href="installation.html" class="nav__link">Install</a></li>
+      <li><a href="getting-started.html" class="nav__link">Getting Started</a></li>
+      <li><a href="background.html" class="nav__link">Background</a></li>
+      <li><a href="structure.html" class="nav__link">Structure</a></li>
+      <li><a href="examples.html" class="nav__link">Examples</a></li>
+      <li><a href="api.html" class="nav__link">API</a></li>
+      <li><a href="input-generator.html" class="nav__link">Input Generator</a></li>
+      <li><a href="cite.html" class="nav__link">Cite</a></li>
+      <li><a href="contact.html" class="nav__link">Contact</a></li>
+    </ul>
+    <div class="nav__actions">
+      <div class="search-bar">
+        <i class="fa fa-search search-icon" aria-hidden="true"></i>
+        <input type="search" class="search-input" placeholder="Search…" aria-label="Search documentation">
+        <div class="search-results" role="listbox"></div>
+      </div>
+      <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+        <span class="theme-toggle-icon">☀️</span>
+      </button>
+      <a href="https://github.com/" class="btn-icon" aria-label="GitHub repository" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="page">
+    <div class="container">
+      <header class="page__header">
+        <span class="section__eyebrow">Setup</span>
+        <h1>Installation</h1>
+        <p class="section__desc">LindbladTTN is a pure-Python package built on top of PyTorch. The same install works on CPU and on CUDA-enabled GPUs.</p>
+      </header>
+
+      <article class="article">
+
+        <h2 id="requirements">Requirements</h2>
+        <ul>
+          <li><strong>Python ≥ 3.11</strong></li>
+          <li><strong>PyTorch ≥ 2.0</strong> — tensor operations, autograd, GPU support</li>
+          <li><strong>torchdiffeq ≥ 0.2</strong> — adaptive ODE integration (used by the VMF strategy)</li>
+          <li><strong>numpy / scipy</strong> — operator construction, input handling</li>
+          <li><strong>tqdm</strong> — progress bars during propagation</li>
+        </ul>
+        <p>Optional for the examples and notebooks:</p>
+        <ul>
+          <li><strong>matplotlib ≥ 3.7</strong> — plotting</li>
+          <li><strong>qutip ≥ 5.0</strong> — side-by-side validation against the standard open-system solver</li>
+        </ul>
+
+        <h2 id="install-pip">Install from source</h2>
+        <p>Clone the repository and install in editable mode:</p>
+        <div class="code-block">
+          <pre><code class="language-bash">git clone https://github.com/&lt;your-org&gt;/lindblad_ttn.git
+cd lindblad_ttn
+pip install -e .</code></pre>
+        </div>
+        <p>The editable install (<code>-e .</code>) lets you modify the source and have the changes picked up immediately without reinstalling.</p>
+
+        <div class="callout">
+          <div class="callout__title"><i class="fa fa-info-circle"></i> Why source-only?</div>
+          <p>LindbladTTN is still pre-1.0. A PyPI release will follow once the API stabilises and the accompanying paper is out.</p>
+        </div>
+
+        <h2 id="gpu">GPU setup</h2>
+        <p>If you have a CUDA-capable GPU, install the matching PyTorch wheel <em>before</em> installing LindbladTTN. Pick the right command from <a href="https://pytorch.org/get-started/locally/" target="_blank" rel="noopener">pytorch.org</a> for your CUDA version. For example, CUDA 12.1:</p>
+        <div class="code-block">
+          <pre><code class="language-bash">pip install torch --index-url https://download.pytorch.org/whl/cu121
+pip install -e .</code></pre>
+        </div>
+        <p>Then pass <code>device="cuda"</code> when constructing the solver:</p>
+        <div class="code-block">
+          <pre><code class="language-python">solver = LindbladTTN(
+    H0=H0, L_ops=L_ops, n_sites=8, bond_dim=64,
+    device="cuda", dtype="complex64",   # 3x faster on GPU than complex128
+)</code></pre>
+        </div>
+        <p><code>complex64</code> trades ~10⁻⁵ accuracy for ~3× speedup. Stay with <code>complex128</code> on CPU.</p>
+
+        <h2 id="examples">Running the examples</h2>
+        <p>Install the optional plotting and validation packages, then run any script in <code>examples/</code>:</p>
+        <div class="code-block">
+          <pre><code class="language-bash">pip install matplotlib qutip
+python examples/qutip_simple.py</code></pre>
+        </div>
+        <p>Each example prints a max-error metric against <code>qutip.mesolve</code> and saves a PNG comparison plot next to the script.</p>
+
+        <h2 id="tests">Running the tests</h2>
+        <div class="code-block">
+          <pre><code class="language-bash">pip install pytest
+pytest tests/</code></pre>
+        </div>
+        <p>The test suite validates LindbladTTN's outputs against QuTiP for the single-qubit, driven, and small multi-qubit cases.</p>
+
+        <h2 id="next">Next steps</h2>
+        <p>You're set up — head to the <a href="getting-started.html">Getting Started</a> tutorial for a four-step walk-through, or jump straight to the <a href="examples.html">Examples gallery</a>.</p>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand-name">LindbladTTN</div>
+        <p class="footer__tagline">Lindblad master equation solver via Tree Tensor Networks</p>
+        <p style="font-size:0.8rem; color: var(--text-muted);">Open source · MIT License</p>
+      </div>
+      <div>
+        <div class="footer__col-title">Docs</div>
+        <ul class="footer__links">
+          <li><a href="installation.html" class="footer__link">Installation</a></li>
+          <li><a href="getting-started.html" class="footer__link">Getting Started</a></li>
+          <li><a href="background.html" class="footer__link">Background</a></li>
+          <li><a href="structure.html" class="footer__link">Structure</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">More</div>
+        <ul class="footer__links">
+          <li><a href="examples.html" class="footer__link">Examples</a></li>
+          <li><a href="api.html" class="footer__link">API Reference</a></li>
+          <li><a href="input-generator.html" class="footer__link">Input Generator</a></li>
+          <li><a href="cite.html" class="footer__link">Cite</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Links</div>
+        <ul class="footer__links">
+          <li><a href="https://github.com/" class="footer__link" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></li>
+          <li><a href="https://ifgroup.github.io/pytenso/" class="footer__link" target="_blank" rel="noopener"><i class="fa fa-external-link-alt"></i> TENSO</a></li>
+          <li><a href="contact.html" class="footer__link"><i class="fa fa-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+          <span class="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

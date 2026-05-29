@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LindbladTTN — Tree Tensor Network Lindblad Solver</title>
+  <meta name="description" content="LindbladTTN: open quantum dynamics for many-qubit systems via Tree Tensor Networks and TDVP, with GPU acceleration.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LindbladTTN — Tree Tensor Network Lindblad Solver" />
+  <meta property="og:description" content="Lindblad master equation solver for many-qubit open quantum systems using Tree Tensor Networks and TDVP." />
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+</head>
+<body>
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="progress-bar"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Home</a></li>
+      <li><a href="installation.html" class="nav__link">Install</a></li>
+      <li><a href="getting-started.html" class="nav__link">Getting Started</a></li>
+      <li><a href="background.html" class="nav__link">Background</a></li>
+      <li><a href="structure.html" class="nav__link">Structure</a></li>
+      <li><a href="examples.html" class="nav__link">Examples</a></li>
+      <li><a href="api.html" class="nav__link">API</a></li>
+      <li><a href="input-generator.html" class="nav__link">Input Generator</a></li>
+      <li><a href="roadmap_site/index.html" class="nav__link">Roadmap</a></li>
+      <li><a href="cite.html" class="nav__link">Cite</a></li>
+      <li><a href="contact.html" class="nav__link">Contact</a></li>
+    </ul>
+    <div class="nav__actions">
+      <div class="search-bar">
+        <i class="fa fa-search search-icon" aria-hidden="true"></i>
+        <input type="search" class="search-input" placeholder="Search…" aria-label="Search documentation">
+        <div class="search-results" role="listbox"></div>
+      </div>
+      <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+        <span class="theme-toggle-icon">☀️</span>
+      </button>
+      <a href="https://github.com/" class="btn-icon" aria-label="GitHub repository" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__content">
+      <div class="hero__badge">
+        <i class="fa fa-atom" aria-hidden="true"></i>
+        Open Quantum Dynamics · TTN-TDVP
+      </div>
+      <h1 class="hero__title">LindbladTTN</h1>
+      <p class="hero__subtitle">Tree Tensor Network Lindblad Master Equation Solver</p>
+      <p class="hero__typewriter">
+        <span id="typewriter-text">Lindblad master equation, solved.</span><span class="cursor" aria-hidden="true"></span>
+      </p>
+      <div class="hero__ctas">
+        <a href="getting-started.html" class="btn btn--primary">
+          <i class="fa fa-rocket" aria-hidden="true"></i> Get Started
+        </a>
+        <a href="https://github.com/" class="btn btn--secondary" target="_blank" rel="noopener">
+          <i class="fab fa-github" aria-hidden="true"></i> GitHub
+        </a>
+      </div>
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <span class="hero__stat-value">Polynomial</span>
+          <span class="hero__stat-label">Memory via TTN</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-value">PS1 + VMF</span>
+          <span class="hero__stat-label">TDVP Strategies</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-value">CPU · GPU</span>
+          <span class="hero__stat-label">Via PyTorch</span>
+        </div>
+      </div>
+    </div>
+    <!-- TTN tree mark -->
+    <svg class="hero__mascot" viewBox="0 0 130 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+      <!-- Bonds -->
+      <line x1="65" y1="22" x2="30" y2="70" stroke="#7BA762" stroke-width="3" stroke-linecap="round"/>
+      <line x1="65" y1="22" x2="100" y2="70" stroke="#7BA762" stroke-width="3" stroke-linecap="round"/>
+      <line x1="30" y1="70" x2="15" y2="120" stroke="#64944F" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="30" y1="70" x2="45" y2="120" stroke="#64944F" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="100" y1="70" x2="85" y2="120" stroke="#64944F" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="100" y1="70" x2="115" y2="120" stroke="#64944F" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Root node: Bloch-sphere style -->
+      <circle cx="65" cy="22" r="14" fill="#0E260B" stroke="#9DC288" stroke-width="2"/>
+      <ellipse cx="65" cy="22" rx="14" ry="5" fill="none" stroke="#7BA762" stroke-width="1" opacity="0.6"/>
+      <line x1="65" y1="8" x2="65" y2="36" stroke="#7BA762" stroke-width="1" opacity="0.6"/>
+      <circle cx="65" cy="14" r="2" fill="#9DC288"/>
+      <!-- Inner nodes -->
+      <circle cx="30" cy="70" r="9" fill="#7BA762"/>
+      <circle cx="100" cy="70" r="9" fill="#7BA762"/>
+      <!-- Leaves -->
+      <circle cx="15" cy="120" r="6.5" fill="#64944F"/>
+      <circle cx="45" cy="120" r="6.5" fill="#64944F"/>
+      <circle cx="85" cy="120" r="6.5" fill="#64944F"/>
+      <circle cx="115" cy="120" r="6.5" fill="#64944F"/>
+      <!-- Qubit labels -->
+      <text x="15" y="145" text-anchor="middle" fill="#7BA762" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">|q₀⟩</text>
+      <text x="45" y="145" text-anchor="middle" fill="#7BA762" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">|q₁⟩</text>
+      <text x="85" y="145" text-anchor="middle" fill="#7BA762" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">|q₂⟩</text>
+      <text x="115" y="145" text-anchor="middle" fill="#7BA762" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">|q₃⟩</text>
+    </svg>
+  </section>
+
+  <!-- Features -->
+  <section style="background: var(--bg-2);">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">Why LindbladTTN</span>
+        <h2 class="section__title">A scalable open-system solver</h2>
+        <p class="section__desc">LindbladTTN exposes a single class. Inside, it builds the Liouvillian as a Sum-of-Products operator, decomposes the density matrix as a Tree Tensor Network, and evolves it with a TDVP integrator — all on top of PyTorch.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal" data-delay="1">
+          <div class="feature-card__icon"><i class="fa fa-compress-arrows-alt"></i></div>
+          <h3 class="feature-card__title">TTN Compression</h3>
+          <p class="feature-card__desc">The density matrix lives in a tree of low-rank tensors. Bond dimension controls the accuracy/cost tradeoff — pick the rank that fits your problem.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="2">
+          <div class="feature-card__icon"><i class="fa fa-sliders"></i></div>
+          <h3 class="feature-card__title">PS1 &amp; VMF</h3>
+          <p class="feature-card__desc">Two complementary TDVP strategies: projector-splitting (PS1) for fixed-rank stability, and Variable Mean-Field (VMF) for adaptive ODE integration via <code>torchdiffeq</code>.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="3">
+          <div class="feature-card__icon"><i class="fa fa-sitemap"></i></div>
+          <h3 class="feature-card__title">Tree &amp; Train</h3>
+          <p class="feature-card__desc">Choose <code>topology="train"</code> for an MPS-style chain or <code>"tree"</code> for a balanced binary tree. The frame factory wires up either topology automatically.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="4">
+          <div class="feature-card__icon"><i class="fa fa-wave-square"></i></div>
+          <h3 class="feature-card__title">Time-Dependent Drives</h3>
+          <p class="feature-card__desc">Pass <code>f(t)</code> and <code>V</code> for a single drive, or a list of <code>(f_i, V_i)</code> tuples for multi-pulse circuits — every channel becomes a SoP term.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="5">
+          <div class="feature-card__icon"><i class="fa fa-microchip"></i></div>
+          <h3 class="feature-card__title">GPU via PyTorch</h3>
+          <p class="feature-card__desc">The same code runs on CPU or CUDA — set <code>device="cuda"</code>. On GPU, drop to <code>dtype="complex64"</code> for a ~3× speedup at ~10⁻⁵ accuracy cost.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="6">
+          <div class="feature-card__icon"><i class="fa fa-check-double"></i></div>
+          <h3 class="feature-card__title">QuTiP-Validated</h3>
+          <p class="feature-card__desc">Every example ships with a side-by-side QuTiP comparison. Single-qubit, driven, and multi-qubit dynamics all agree with <code>qutip.mesolve</code> to ~10⁻⁷.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Code Preview -->
+  <section>
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">Quick Start</span>
+        <h2 class="section__title">A simulation in four steps</h2>
+        <p class="section__desc">Define the system, build the solver, propagate, inspect.</p>
+      </div>
+
+      <div class="tabs reveal" role="tablist" aria-label="Quick start code steps">
+        <div class="tabs__nav">
+          <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-system" id="btn-system">
+            <i class="fa fa-atom" aria-hidden="true"></i> 1. System
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-solver" id="btn-solver" tabindex="-1">
+            <i class="fa fa-cube" aria-hidden="true"></i> 2. Solver
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-run" id="btn-run" tabindex="-1">
+            <i class="fa fa-play" aria-hidden="true"></i> 3. Run
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-inspect" id="btn-inspect" tabindex="-1">
+            <i class="fa fa-chart-line" aria-hidden="true"></i> 4. Inspect
+          </button>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="tab-system" aria-labelledby="btn-system" aria-hidden="false">
+          <div class="code-block">
+            <pre><code class="language-python">import numpy as np
+from lindblad_ttn import LindbladTTN
+
+# Pauli operators
+sz = np.array([[1,  0], [0, -1]], dtype=complex)
+sm = np.array([[0,  0], [1,  0]], dtype=complex)  # sigma minus
+
+# Single-qubit decay: H = omega/2 sz, jump = sqrt(gamma) sigma-
+omega, gamma = 1.0, 0.3
+H0    = 0.5 * omega * sz
+L_ops = [(gamma, sm)]</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="tab-solver" aria-labelledby="btn-solver" aria-hidden="true">
+          <div class="code-block">
+            <pre><code class="language-python">solver = LindbladTTN(
+    H0=H0,
+    f=None, V=None,         # no drive in this example
+    L_ops=L_ops,
+    n_sites=1,
+    bond_dim=4,
+    topology="train",
+    strategy="ps1",
+    device="cpu",
+    dtype="complex128",
+)</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="tab-run" aria-labelledby="btn-run" aria-hidden="true">
+          <div class="code-block">
+            <pre><code class="language-python"># Initial state: excited |1><1|
+rho0 = np.array([[1.0, 0.0], [0.0, 0.0]], dtype=complex)
+
+result = solver.run(
+    rho0=rho0,
+    t_span=(0.0, 15.0),
+    dt=0.01,
+    observables=[sz],
+    save_every=1,
+    verbose=True,
+)</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="tab-inspect" aria-labelledby="btn-inspect" aria-hidden="true">
+          <div class="code-block">
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+
+print("Final trace:", result.norm[-1])
+print("Final density matrix:\n", result.rho_final)
+
+plt.plot(result.times, result.expect[0].real, label=r"$\langle\sigma_z\rangle$")
+plt.xlabel("t"); plt.ylabel("expectation")
+plt.legend(); plt.show()
+
+# Save full report to plain text
+result.save_txt("decay.txt")</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="getting-started.html" class="btn btn--primary">
+          Full Tutorial <i class="fa fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architectural callout -->
+  <section style="background: var(--bg-2);">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">Architecture</span>
+        <h2 class="section__title">Three layers, one class</h2>
+        <p class="section__desc">Everything users touch is <code>LindbladTTN</code>. Underneath, three independent layers do the work.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div class="feature-card reveal" data-delay="1">
+          <div class="feature-card__icon"><i class="fa fa-cubes"></i></div>
+          <h3 class="feature-card__title">core/</h3>
+          <p class="feature-card__desc">TTN infrastructure: backend, graph topology (Node/End/Frame), per-node tensor storage, gauge transformations, Sum-of-Products operators.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="2">
+          <div class="feature-card__icon"><i class="fa fa-flask"></i></div>
+          <h3 class="feature-card__title">physics/</h3>
+          <p class="feature-card__desc">The Lindblad layer: Pauli decomposition of the Liouvillian into local 4×4 superoperators, Liouville-space vec/unvec, train and balanced-tree frame factories.</p>
+        </div>
+        <div class="feature-card reveal" data-delay="3">
+          <div class="feature-card__icon"><i class="fa fa-clock-rotate-left"></i></div>
+          <h3 class="feature-card__title">propagation/</h3>
+          <p class="feature-card__desc">TDVP engine: PS1 projector-splitting sweeps, VMF whole-tensor ODE integration, Krylov matrix exponentials, local effective Liouvillians.</p>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a href="structure.html" class="btn btn--secondary">
+          <i class="fa fa-diagram-project"></i> Full architecture
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand-name">LindbladTTN</div>
+        <p class="footer__tagline">Lindblad master equation solver via Tree Tensor Networks</p>
+        <p style="font-size:0.8rem; color: var(--text-muted);">Open source · MIT License</p>
+      </div>
+      <div>
+        <div class="footer__col-title">Docs</div>
+        <ul class="footer__links">
+          <li><a href="installation.html" class="footer__link">Installation</a></li>
+          <li><a href="getting-started.html" class="footer__link">Getting Started</a></li>
+          <li><a href="background.html" class="footer__link">Background</a></li>
+          <li><a href="structure.html" class="footer__link">Structure</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">More</div>
+        <ul class="footer__links">
+          <li><a href="examples.html" class="footer__link">Examples</a></li>
+          <li><a href="api.html" class="footer__link">API Reference</a></li>
+          <li><a href="input-generator.html" class="footer__link">Input Generator</a></li>
+          <li><a href="roadmap_site/index.html" class="footer__link">Research Roadmap</a></li>
+          <li><a href="cite.html" class="footer__link">Cite</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Links</div>
+        <ul class="footer__links">
+          <li><a href="https://github.com/" class="footer__link" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></li>
+          <li><a href="https://ifgroup.github.io/pytenso/" class="footer__link" target="_blank" rel="noopener"><i class="fa fa-external-link-alt"></i> TENSO (sister project)</a></li>
+          <li><a href="contact.html" class="footer__link"><i class="fa fa-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+          <span class="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

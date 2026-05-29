@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-audience-active="researcher">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QEC Codes — LindbladTTN Hybrid Platforms</title>
+  <meta name="description" content="Stabilizer formalism, surface code (rotated and unrotated), color codes (4.8.8 and 6.6.6), syndrome extraction, and gate-to-Hamiltonian mapping.">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="assets/roadmap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" defer></script>
+  <script src="assets/roadmap.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" role="navigation" aria-label="Roadmap navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN · Roadmap</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Overview</a></li>
+      <li><a href="molecular-spins.html" class="nav__link">Molecular Spins</a></li>
+      <li><a href="sc-elements.html" class="nav__link">SC Elements</a></li>
+      <li><a href="coupling-regimes.html" class="nav__link">Coupling</a></li>
+      <li><a href="effective-hamiltonians.html" class="nav__link">Effective H</a></li>
+      <li><a href="qec-codes.html" class="nav__link">QEC</a></li>
+      <li><a href="code-roadmap.html" class="nav__link">Code Roadmap</a></li>
+      <li><a href="changelog.html" class="nav__link">Changelog</a></li>
+      <li><a href="references.html" class="nav__link">References</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="../index.html" class="btn-icon" aria-label="Back to main docs"><i class="fa fa-house"></i></a>
+    </div>
+  </nav>
+
+  <div class="audience-bar">
+    <span class="audience-bar__label">Audience depth:</span>
+    <div class="audience-bar__group" role="group" aria-label="Audience level">
+      <button class="audience-btn" data-level="student"    aria-pressed="false">Student</button>
+      <button class="audience-btn" data-level="researcher" aria-pressed="true">Researcher</button>
+      <button class="audience-btn" data-level="expert"     aria-pressed="false">Expert</button>
+    </div>
+  </div>
+
+  <main class="roadmap-main">
+
+    <header>
+      <span class="roadmap-eyebrow">Page 6 of 8 · Physics</span>
+      <h1 class="roadmap-title">Quantum error correction codes</h1>
+      <p class="roadmap-subtitle">
+        Building a logical qubit out of dozens of molecular spins coupled to SC resonators.
+        Stabilizer formalism, surface code, color codes, and how each maps to the gates from page 5.
+      </p>
+    </header>
+
+    <section class="roadmap-section">
+      <div class="toc">
+        <div class="toc__head">On this page</div>
+        <ol>
+          <li><a href="#stab">Stabilizer formalism recap</a></li>
+          <li><a href="#surface">Surface code</a></li>
+          <li><a href="#color">Color codes (4.8.8, 6.6.6)</a></li>
+          <li><a href="#syndrome">Syndrome extraction</a></li>
+          <li><a href="#mapping">Gate-to-Hamiltonian map</a></li>
+          <li><a href="#sim">Simulating logical qubits in LindbladTTN</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="stab">
+      <h2>1 · Stabilizer formalism recap</h2>
+
+      <p>A <strong>stabilizer code</strong> on $n$ physical qubits is defined by an Abelian subgroup $\mathcal{S}$ of the Pauli group, with $-I \notin \mathcal{S}$.  The codespace is</p>
+
+      <div class="eq-block">
+$$
+\mathcal{C} = \{ |\psi\rangle : S|\psi\rangle = |\psi\rangle \;\forall S\in \mathcal{S} \}.
+$$
+      </div>
+
+      <p>If $\mathcal{S}$ has $n - k$ independent generators, the codespace encodes $k$ logical qubits.  Logical Pauli operators $\bar X, \bar Z$ commute with $\mathcal{S}$ but are not in it.</p>
+
+      <div data-audience="student researcher">
+        <p>The art of QEC is choosing $\mathcal{S}$ so that <strong>any low-weight error</strong> on the physical qubits anti-commutes with at least one generator — measuring it raises a non-trivial syndrome that pinpoints the error.</p>
+      </div>
+
+      <div data-audience="researcher expert">
+        <p>A stabilizer code has distance $d$ if the minimum-weight non-trivial logical operator has weight $d$.  It can correct any error of weight $\lfloor (d-1)/2 \rfloor$.  The two codes most relevant to our roadmap (surface and color) are both <strong>topological</strong>: stabilizers are geometrically local on a 2D lattice.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="surface">
+      <h2>2 · Surface code</h2>
+
+      <p>The surface code places physical qubits on the edges of a 2D lattice. Each vertex carries an $X$-stabilizer (product of $X$ over incident edges); each plaquette carries a $Z$-stabilizer.</p>
+
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart LR
+  subgraph rotated["Rotated surface code · d = 3"]
+    direction TB
+    Q1((q1))--- Q2((q2))--- Q3((q3))
+    Q4((q4))--- Q5((q5))--- Q6((q6))
+    Q7((q7))--- Q8((q8))--- Q9((q9))
+    Q1 --- Q4 --- Q7
+    Q2 --- Q5 --- Q8
+    Q3 --- Q6 --- Q9
+    AZ[X plaquette · q1 q2 q4 q5]:::xs
+    BZ[Z plaquette · q5 q6 q8 q9]:::zs
+  end
+  classDef xs fill:#1a3a15,stroke:#d4a04b,color:#f0f5ec
+  classDef zs fill:#1a3a15,stroke:#6fa8c9,color:#f0f5ec
+        </pre>
+      </div>
+
+      <ul>
+        <li><strong>Distance-$d$ code</strong> uses $d^2$ data qubits (rotated layout) and ~$d^2$ ancillas.  $d=3$ → 9 data + ~9 ancilla.</li>
+        <li><strong>Threshold</strong> $\approx 1\%$ per physical operation under standard noise models — the highest of any known topological code.</li>
+        <li><strong>Logical operators</strong> $\bar Z$ runs vertically across rows; $\bar X$ runs horizontally across columns.</li>
+        <li><strong>Lattice surgery</strong> implements two-qubit logical gates by merging and splitting patches.</li>
+      </ul>
+
+      <div data-audience="researcher expert">
+        <div class="callout callout--info">
+          <div class="callout__head"><i class="fa fa-bullseye"></i> Why surface code first</div>
+          <p style="margin:0;">
+            Highest threshold, simplest connectivity (nearest-neighbour on a square lattice), and a mature decoder
+            (MWPM / Union-Find).  Already demonstrated below threshold by Google &amp; ETH Zurich (2022–2024).
+            Our M8 milestone targets distance-3 (smallest fault-tolerant) for benchmarking against Stim.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="color">
+      <h2>3 · Color codes</h2>
+
+      <p>Color codes live on a 3-coloured 2D lattice.  Every face is a stabilizer of <em>both</em> $X^{\otimes n}$ and $Z^{\otimes n}$ types, giving a $[[n,1,d]]$ code with the same logical-information ratio as the surface code but with <strong>transversal Clifford gates</strong>.</p>
+
+      <table class="r-table">
+        <thead><tr><th>Lattice</th><th>Faces (stabilizers)</th><th>Threshold</th><th>Pros</th><th>Cons</th></tr></thead>
+        <tbody>
+          <tr><td>6.6.6 (triangular)</td><td>Hexagons</td><td>~0.3–0.5%</td><td>Transversal Clifford, low overhead</td><td>Weight-6 stabilizers (longer syndrome circuits)</td></tr>
+          <tr><td>4.8.8 (square–octagon)</td><td>Squares + octagons</td><td>~0.1%</td><td>Transversal Clifford</td><td>Weight-8 stabilizers; harder decoder</td></tr>
+        </tbody>
+      </table>
+
+      <div data-audience="researcher expert">
+        <div class="callout callout--tip">
+          <div class="callout__head"><i class="fa fa-lightbulb"></i> When colour beats surface</div>
+          <p style="margin:0;">
+            Color codes implement the entire Clifford group <em>transversally</em> — every logical gate is a single round
+            of physical gates with no $T$-state distillation overhead for the Clifford part.  This dramatically reduces
+            magic-state-injection rates.  The cost is more complex syndrome circuits and lower threshold.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="syndrome">
+      <h2>4 · Syndrome extraction</h2>
+
+      <p>Each stabilizer generator is measured by an ancilla qubit running a "merge–CNOT–measure" pattern.  A weight-4 $Z$-stabilizer needs:</p>
+
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+sequenceDiagram
+  participant A as Ancilla |0⟩
+  participant D1 as Data q1
+  participant D2 as Data q2
+  participant D3 as Data q3
+  participant D4 as Data q4
+  A->>D1: CNOT
+  A->>D2: CNOT
+  A->>D3: CNOT
+  A->>D4: CNOT
+  Note right of A: Measure Z on ancilla<br/>= eigenvalue of Z⊗Z⊗Z⊗Z
+        </pre>
+      </div>
+
+      <p>For $X$-stabilizers, the ancilla begins in $|+\rangle$ and is measured in the $X$-basis (equivalently surrounded by Hadamards). Each cycle requires:</p>
+
+      <ol>
+        <li>Reset all ancillas.</li>
+        <li>Hadamards (for $X$-stabilizers).</li>
+        <li>Four CNOTs (in a schedule that avoids collisions on data qubits).</li>
+        <li>Hadamards back.</li>
+        <li>Dispersive readout of every ancilla.</li>
+        <li>Classical decoding of the syndrome.</li>
+      </ol>
+
+      <div data-audience="researcher expert">
+        <p>In a molecular-spin / cQED hybrid, the natural choice is:</p>
+        <ul>
+          <li><strong>Data qubits</strong> are molecular spins (long coherence).</li>
+          <li><strong>Ancilla qubits</strong> are transmons (fast initialisation, fast dispersive readout).</li>
+          <li><strong>CNOTs</strong> are cross-resonance or cavity-mediated $J_\text{eff}$ between spin and transmon.</li>
+          <li><strong>Readout</strong> uses the shared bus cavity dispersively coupled to the transmon.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="mapping">
+      <h2>5 · Gate &harr; Hamiltonian map</h2>
+
+      <p>This is the bridge from physics to QEC: which Hamiltonian term from <a href="effective-hamiltonians.html">page 5</a> implements each gate the code needs?</p>
+
+      <table class="r-table">
+        <thead>
+          <tr>
+            <th>Code action</th>
+            <th>Physical gate</th>
+            <th>Mechanism</th>
+            <th>Pulse shape (M6)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Initialise ancilla</td>
+            <td>Reset + $\pi/2$ rotation</td>
+            <td>Dispersive readout + feedback or unconditional reset</td>
+            <td>Square + post-measurement pulse</td>
+          </tr>
+          <tr>
+            <td>Single-qubit Clifford</td>
+            <td>$R_x(\pi/2)$, $R_z(\pi/2)$, $H$</td>
+            <td>Microwave drive on spin / transmon</td>
+            <td>Gaussian + DRAG</td>
+          </tr>
+          <tr>
+            <td>Two-qubit CNOT</td>
+            <td>spin ↔ transmon</td>
+            <td>Cavity-mediated $J_\text{eff}\,\sigma_z\sigma_z$ → CZ → conjugate to CNOT</td>
+            <td>Flat-top with rise/fall</td>
+          </tr>
+          <tr>
+            <td>Stabilizer measurement</td>
+            <td>Dispersive readout</td>
+            <td>$\chi\, a^\dagger a\,\sigma_z$ on ancilla bus</td>
+            <td>Square + integration window</td>
+          </tr>
+          <tr>
+            <td>Lattice surgery</td>
+            <td>Joint stabilizer measurement</td>
+            <td>Cross-resonance between patch ancillas</td>
+            <td>Echoed CR sequence</td>
+          </tr>
+          <tr>
+            <td>Magic-state injection</td>
+            <td>Non-Clifford $T$ ancilla</td>
+            <td>Faulty $T$ + distillation circuit</td>
+            <td>Calibrated cavity-mediated $|T\rangle$ prep</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="roadmap-section" id="sim">
+      <h2>6 · Simulating logical qubits in LindbladTTN (M8, shipped)</h2>
+
+      <p>The v0.3.0 stabilizer toolkit gives you the code structure, the
+      abstract syndrome-extraction circuit, and the MWPM decoder.  Compilation
+      to physical pulses + full Lindblad simulation of the syndrome rounds
+      is the natural next step (will lean on PS2 + the multi-child state
+      initialiser):</p>
+
+      <div class="code-block">
+<pre><code class="language-python">from lindblad_ttn.qec import (
+    RepetitionCode, SurfaceCode, ColorCode488, PauliString,
+)
+from lindblad_ttn.qec.decoders import mwpm_decode_syndrome
+
+# ---------- 1) Stabilizer codes ----------
+rep   = RepetitionCode(N=5)              # 5 data qubits, distance 5
+surf  = SurfaceCode(distance=3)          # rotated d=3
+color = ColorCode488()                   # 7-qubit Steane
+
+# Each code knows its generators and logical operators.
+surf.verify_commutation()                # asserts all stabilizers commute
+print(f"surface  d={surf.distance},  n_data={surf.n_data}, "
+      f"|stabs|={len(surf.generators())}")
+print(f"Xbar weight = {surf.logical('X').weight()}")  # 3 for d=3
+
+# ---------- 2) Abstract syndrome circuit ----------
+gates = surf.syndrome_circuit()
+# [(name, qubits), ...]  with name in {'RESET', 'H', 'CNOT', 'MZ', ...}
+
+# ---------- 3) MWPM decoding ----------
+import numpy as np
+# `H` is the parity-check matrix (n_stabs × n_errors); `syn` is a batch of
+# observed syndromes from a noisy simulation.
+syn = np.array([[1, 0, 1, 1, 0, 0]], dtype=np.uint8)
+H_pcm = np.eye(6, dtype=np.uint8)
+correction = mwpm_decode_syndrome(syn, H_pcm)  # falls back to brute-force if
+                                               # PyMatching is not installed</code></pre>
+      </div>
+
+      <div class="callout callout--info">
+        <div class="callout__head"><i class="fa fa-route"></i> What ships now vs. what's next</div>
+        <p style="margin:0;">
+          <strong>v0.3.0 ships:</strong> code structure, generators, logical
+          operators, abstract syndrome circuits, MWPM decoder wrapper.
+          <strong>Next:</strong> compiling the abstract circuit into pulse
+          sequences via the <a href="../control/">M6 pulse library</a>,
+          and end-to-end Lindblad syndrome simulation with the cavity-centred
+          TTN topology — both unlocked once the 2-site TDVP (PS2) and the
+          multi-child state initialiser land.
+        </p>
+      </div>
+
+      <div class="callout callout--warn">
+        <div class="callout__head"><i class="fa fa-triangle-exclamation"></i> Reality check</div>
+        <p style="margin:0;">
+          A full distance-3 syndrome simulation has $\sim 17$ qubits + 2 cavities = 19 sites, each $d=2$–$8$.
+          Even with TTN compression this is a flagship-scale simulation — measure twice, run once.
+          The benchmark suite (M10) tracks where the bond dimension blows up.
+        </p>
+      </div>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <a href="effective-hamiltonians.html"><small>← Previous</small> Effective Hamiltonians</a>
+      <a href="code-roadmap.html"><small>Next →</small> Code roadmap</a>
+    </nav>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+    </div>
+  </footer>
+
+</body>
+</html>

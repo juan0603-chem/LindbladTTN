@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Generator · LindbladTTN</title>
+  <meta name="description" content="Interactive form that emits a ready-to-run LindbladTTN script for your problem.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+</head>
+<body>
+  <div class="progress-bar"></div>
+
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Home</a></li>
+      <li><a href="installation.html" class="nav__link">Install</a></li>
+      <li><a href="getting-started.html" class="nav__link">Getting Started</a></li>
+      <li><a href="background.html" class="nav__link">Background</a></li>
+      <li><a href="structure.html" class="nav__link">Structure</a></li>
+      <li><a href="examples.html" class="nav__link">Examples</a></li>
+      <li><a href="api.html" class="nav__link">API</a></li>
+      <li><a href="input-generator.html" class="nav__link">Input Generator</a></li>
+      <li><a href="cite.html" class="nav__link">Cite</a></li>
+      <li><a href="contact.html" class="nav__link">Contact</a></li>
+    </ul>
+    <div class="nav__actions">
+      <div class="search-bar">
+        <i class="fa fa-search search-icon" aria-hidden="true"></i>
+        <input type="search" class="search-input" placeholder="Search…" aria-label="Search documentation">
+        <div class="search-results" role="listbox"></div>
+      </div>
+      <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+        <span class="theme-toggle-icon">☀️</span>
+      </button>
+      <a href="https://github.com/" class="btn-icon" aria-label="GitHub repository" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="page">
+    <div class="container">
+      <header class="page__header">
+        <span class="section__eyebrow">Tool</span>
+        <h1>Input Generator</h1>
+        <p class="section__desc">Pick the knobs on the left — a ready-to-run LindbladTTN script appears on the right. The output updates as you type.</p>
+      </header>
+
+      <article class="article">
+        <div class="input-generator">
+          <form id="gen-form" class="gen-form">
+            <fieldset>
+              <legend>System</legend>
+              <div class="gen-row">
+                <label for="n_sites">Number of qubits</label>
+                <input type="number" id="n_sites" name="n_sites" min="1" max="20" value="2">
+              </div>
+              <div class="gen-row">
+                <label for="omega">Qubit frequency ω</label>
+                <input type="number" id="omega" name="omega" step="0.1" value="1.0">
+              </div>
+              <div class="gen-row">
+                <label for="gamma">Decay rate γ</label>
+                <input type="number" id="gamma" name="gamma" step="0.01" value="0.1">
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Drive (optional)</legend>
+              <div class="gen-row">
+                <label for="drive">Add a coherent drive on qubit 0</label>
+                <input type="checkbox" id="drive" name="drive">
+              </div>
+              <div class="gen-row">
+                <label for="omega_r">Rabi amplitude Ω_R</label>
+                <input type="number" id="omega_r" name="omega_r" step="0.05" value="0.4">
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>TTN</legend>
+              <div class="gen-row">
+                <label for="bond_dim">Bond dimension χ</label>
+                <input type="number" id="bond_dim" name="bond_dim" min="2" max="256" value="16">
+              </div>
+              <div class="gen-row">
+                <label for="topology">Topology</label>
+                <select id="topology" name="topology">
+                  <option value="tree">tree</option>
+                  <option value="train">train</option>
+                </select>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Propagation</legend>
+              <div class="gen-row">
+                <label for="strategy">Strategy</label>
+                <select id="strategy" name="strategy">
+                  <option value="ps1">ps1</option>
+                  <option value="vmf">vmf</option>
+                </select>
+              </div>
+              <div class="gen-row">
+                <label for="device">Device</label>
+                <select id="device" name="device">
+                  <option value="cpu">cpu</option>
+                  <option value="cuda">cuda</option>
+                </select>
+              </div>
+              <div class="gen-row">
+                <label for="dtype">dtype</label>
+                <select id="dtype" name="dtype">
+                  <option value="complex128">complex128</option>
+                  <option value="complex64">complex64</option>
+                </select>
+              </div>
+              <div class="gen-row">
+                <label for="t_final">Final time</label>
+                <input type="number" id="t_final" name="t_final" step="0.5" value="10.0">
+              </div>
+              <div class="gen-row">
+                <label for="dt">Step size dt</label>
+                <input type="number" id="dt" name="dt" step="0.005" value="0.01">
+              </div>
+            </fieldset>
+          </form>
+
+          <div class="gen-output-wrap">
+            <button id="gen-copy" class="gen-copy" type="button">
+              <i class="fa fa-copy"></i> Copy code
+            </button>
+            <pre><code id="gen-output" class="language-python"></code></pre>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout__title"><i class="fa fa-info-circle"></i> What this builds</div>
+          <p>The generator emits a self-contained Python script that defines Pauli operators, embeds them on each qubit, builds the Hamiltonian and a local-decay channel on every site, instantiates <code>LindbladTTN</code>, and runs a single TDVP trajectory from $\rho_0 = |0\ldots 0\rangle\langle 0\ldots 0|$. Edit it further to match your specific physics.</p>
+        </div>
+
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand-name">LindbladTTN</div>
+        <p class="footer__tagline">Lindblad master equation solver via Tree Tensor Networks</p>
+        <p style="font-size:0.8rem; color: var(--text-muted);">Open source · MIT License</p>
+      </div>
+      <div>
+        <div class="footer__col-title">Docs</div>
+        <ul class="footer__links">
+          <li><a href="installation.html" class="footer__link">Installation</a></li>
+          <li><a href="getting-started.html" class="footer__link">Getting Started</a></li>
+          <li><a href="background.html" class="footer__link">Background</a></li>
+          <li><a href="structure.html" class="footer__link">Structure</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">More</div>
+        <ul class="footer__links">
+          <li><a href="examples.html" class="footer__link">Examples</a></li>
+          <li><a href="api.html" class="footer__link">API Reference</a></li>
+          <li><a href="input-generator.html" class="footer__link">Input Generator</a></li>
+          <li><a href="cite.html" class="footer__link">Cite</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Links</div>
+        <ul class="footer__links">
+          <li><a href="https://github.com/" class="footer__link" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></li>
+          <li><a href="contact.html" class="footer__link"><i class="fa fa-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-icon" data-theme-toggle aria-label="Toggle theme">
+          <span class="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/input-generator.js" defer></script>
+</body>
+</html>

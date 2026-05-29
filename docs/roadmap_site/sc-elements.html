@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-audience-active="researcher">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superconducting Elements — LindbladTTN Hybrid Platforms</title>
+  <meta name="description" content="Transmons, fluxoniums, and bare LC resonators as couplers and qubits in hybrid molecular-spin / cQED platforms.">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/prism-lindblad.css">
+  <link rel="stylesheet" href="assets/roadmap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" defer></script>
+  <script src="assets/roadmap.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" role="navigation" aria-label="Roadmap navigation">
+    <a href="index.html" class="nav__logo">LindbladTTN · Roadmap</a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" class="nav__link">Overview</a></li>
+      <li><a href="molecular-spins.html" class="nav__link">Molecular Spins</a></li>
+      <li><a href="sc-elements.html" class="nav__link">SC Elements</a></li>
+      <li><a href="coupling-regimes.html" class="nav__link">Coupling</a></li>
+      <li><a href="effective-hamiltonians.html" class="nav__link">Effective H</a></li>
+      <li><a href="qec-codes.html" class="nav__link">QEC</a></li>
+      <li><a href="code-roadmap.html" class="nav__link">Code Roadmap</a></li>
+      <li><a href="changelog.html" class="nav__link">Changelog</a></li>
+      <li><a href="references.html" class="nav__link">References</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="../index.html" class="btn-icon" aria-label="Back to main docs"><i class="fa fa-house"></i></a>
+    </div>
+  </nav>
+
+  <div class="audience-bar">
+    <span class="audience-bar__label">Audience depth:</span>
+    <div class="audience-bar__group" role="group" aria-label="Audience level">
+      <button class="audience-btn" data-level="student"    aria-pressed="false">Student</button>
+      <button class="audience-btn" data-level="researcher" aria-pressed="true">Researcher</button>
+      <button class="audience-btn" data-level="expert"     aria-pressed="false">Expert</button>
+    </div>
+  </div>
+
+  <main class="roadmap-main">
+
+    <header>
+      <span class="roadmap-eyebrow">Page 3 of 8 · Physics</span>
+      <h1 class="roadmap-title">Superconducting elements</h1>
+      <p class="roadmap-subtitle">
+        Three flavours of SC element compared side-by-side: the workhorse <strong>transmon</strong>,
+        the high-anharmonicity <strong>fluxonium</strong>, and the noise-clean
+        <strong>bare LC resonator</strong>.
+      </p>
+    </header>
+
+    <section class="roadmap-section">
+      <div class="toc">
+        <div class="toc__head">On this page</div>
+        <ol>
+          <li><a href="#why">Why a superconducting element?</a></li>
+          <li><a href="#lc">Bare LC resonator</a></li>
+          <li><a href="#transmon">Transmon: Duffing oscillator</a></li>
+          <li><a href="#fluxonium">Fluxonium: cos(&phi;) potential</a></li>
+          <li><a href="#compare">Side-by-side comparison</a></li>
+          <li><a href="#code">In code: templates (M4, shipped)</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="why">
+      <h2>1 · Why a superconducting element?</h2>
+      <p>A molecular spin alone has small magnetic-dipole coupling to free space. To get strong, controllable interactions we route the spin's microwave magnetic field through a <em>circuit</em>:</p>
+      <ul>
+        <li>A <strong>bare LC resonator</strong> concentrates microwave magnetic field at the spin's location, boosting $g$ by an order of magnitude.</li>
+        <li>A <strong>nonlinear element</strong> (transmon, fluxonium) provides a qubit-like anharmonic spectrum: a dedicated $|0\rangle, |1\rangle$ subspace plus selection rules useful for readout and driving.</li>
+      </ul>
+
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart LR
+  subgraph SCsub[SC element]
+    direction TB
+    LC[LC resonator]
+    JJ[Josephson junction]
+  end
+  Spin[Molecular spin]
+  Drive[Microwave drive] --> SCsub
+  SCsub -- magnetic coupling g --> Spin
+  Readout[Readout port] -.-> SCsub
+        </pre>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="lc">
+      <h2>2 · Bare LC resonator</h2>
+      <p>The simplest building block.  A high-Q superconducting LC circuit (CPW, lumped, or 3D cavity) gives a linear harmonic oscillator:</p>
+
+      <div class="eq-block">
+$$
+H_\text{LC} = \omega_c\,a^\dagger a, \qquad \omega_c = \frac{1}{\sqrt{LC}}.
+$$
+      </div>
+
+      <ul>
+        <li>$Q$-factors of $10^5\text{–}10^7$ are routine; 3D cavities reach $Q \sim 10^9$.</li>
+        <li>Photon-loss rate $\kappa = \omega_c/Q$ enters as a Lindblad operator $L = \sqrt{\kappa}\, a$.</li>
+        <li>No anharmonicity — cannot be used <em>directly</em> as a qubit, but ideal as a quantum bus.</li>
+      </ul>
+
+      <div data-audience="researcher expert">
+        <p>For magnetic coupling to a spin, the relevant field at the spin's location is</p>
+        <div class="eq-block">
+$$
+\mathbf{B}_\text{vac}(\mathbf{r}) = b_0(\mathbf{r})(a + a^\dagger),
+\qquad
+b_0 \sim \sqrt{\mu_0 \hbar \omega_c / V_\text{mode}},
+$$
+        </div>
+        <p>so the single-photon Rabi coupling $g = g_e \mu_B b_0 / \hbar$ scales as $V_\text{mode}^{-1/2}$.  Constriction-type resonators with sub-µm field maxima push $g$ from ~kHz (free-space) into the 0.1–1&nbsp;MHz range for a single molecule.</p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="transmon">
+      <h2>3 · Transmon — Duffing oscillator</h2>
+
+      <p>The transmon is a Cooper-pair box biased deep in the regime $E_J/E_C \gtrsim 50$ where the dispersion of energy levels with the offset charge $n_g$ is exponentially suppressed.</p>
+
+      <div class="eq-block">
+$$
+H_\text{T}^\text{CPB} = 4 E_C (\hat n - n_g)^2 - E_J \cos\hat\phi .
+$$
+      </div>
+
+      <div data-audience="researcher expert">
+        <p>Expand $\cos\hat\phi$ to fourth order and quantise $\hat\phi$, $\hat n$ in oscillator variables to get the <em>Duffing</em> approximation:</p>
+
+        <div class="eq-block">
+$$
+H_\text{T}^\text{Duff} \approx \omega_q\, a^\dagger a - \frac{\alpha}{2}\, a^\dagger a^\dagger a a,
+\qquad
+\omega_q = \sqrt{8 E_C E_J} - E_C,
+\qquad
+\alpha \approx E_C .
+$$
+        </div>
+
+        <p class="eq-caption">Single-photon Kerr $\alpha$ sets the anharmonicity: transmons run with $\alpha/2\pi \approx 200\,\text{MHz}$.</p>
+
+        <p>For LindbladTTN purposes, a transmon site is a truncated Fock space (typically $N_\text{cut}=4$) carrying the Duffing Hamiltonian.  In v0.3.0 this is a single $d_s = 4$ End in the tree, built with <code>templates.transmon(omega_q, alpha, N_cut=4)</code>.</p>
+      </div>
+
+      <table class="r-table">
+        <thead><tr><th>Parameter</th><th>Symbol</th><th>Typical</th></tr></thead>
+        <tbody>
+          <tr><td>Charging energy</td><td>$E_C / h$</td><td>200–400 MHz</td></tr>
+          <tr><td>Josephson energy</td><td>$E_J / h$</td><td>10–30 GHz</td></tr>
+          <tr><td>Qubit frequency</td><td>$\omega_q / 2\pi$</td><td>3–6 GHz</td></tr>
+          <tr><td>Anharmonicity</td><td>$\alpha / 2\pi$</td><td>−150 to −300 MHz</td></tr>
+          <tr><td>$T_1$</td><td>—</td><td>50–500 µs</td></tr>
+          <tr><td>$T_2^\text{echo}$</td><td>—</td><td>50–300 µs</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="roadmap-section" id="fluxonium">
+      <h2>4 · Fluxonium — cos(&phi;) on a superinductor</h2>
+
+      <p>Fluxonium adds a superinductance $L$ shunting the Josephson junction.  This breaks the periodicity of $\cos\hat\phi$ and gives access to genuinely nonlinear eigenstates.</p>
+
+      <div class="eq-block">
+$$
+H_\text{F} = 4 E_C \hat n^2 - E_J \cos(\hat\phi - \varphi_\text{ext}) + \tfrac{1}{2}\, E_L\, \hat\phi^2 .
+$$
+      </div>
+
+      <div data-audience="researcher expert">
+        <p>At half-flux $\varphi_\text{ext} = \pi$ the two lowest eigenstates are localised in different wells of the tilted cosine, with $\omega_q / 2\pi \sim 0.5$–1&nbsp;GHz and <strong>anharmonicity comparable to or larger than $\omega_q$</strong>.  This makes fluxonium an ideal substrate for fast, leakage-suppressed gates.</p>
+
+        <p>Diagonalising $H_\text{F}$ requires a charge-basis or oscillator-basis truncation typically of order $\dim = 40$–$100$.  After M2 + M4 this becomes a single bosonic site with a custom Hamiltonian closed-form.  The dimension is large compared to a transmon but the resulting qubit subspace is much more isolated.</p>
+      </div>
+
+      <table class="r-table">
+        <thead><tr><th>Parameter</th><th>Symbol</th><th>Typical</th></tr></thead>
+        <tbody>
+          <tr><td>Charging energy</td><td>$E_C / h$</td><td>1–3 GHz</td></tr>
+          <tr><td>Josephson energy</td><td>$E_J / h$</td><td>3–10 GHz</td></tr>
+          <tr><td>Inductive energy</td><td>$E_L / h$</td><td>0.5–2 GHz</td></tr>
+          <tr><td>Qubit frequency</td><td>$\omega_q / 2\pi$</td><td>0.5–1 GHz at half-flux</td></tr>
+          <tr><td>Anharmonicity</td><td>$\alpha / 2\pi$</td><td>1–4 GHz</td></tr>
+          <tr><td>$T_1$</td><td>—</td><td>up to 1–2 ms</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="roadmap-section" id="compare">
+      <h2>5 · Side-by-side comparison</h2>
+
+      <table class="r-table">
+        <thead>
+          <tr>
+            <th>Trait</th>
+            <th>Bare LC</th>
+            <th>Transmon</th>
+            <th>Fluxonium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Spectrum</td><td>Linear, evenly spaced</td><td>Weakly anharmonic ($\alpha/\omega_q \sim 5\%$)</td><td>Strongly anharmonic ($\alpha/\omega_q \sim 1$)</td></tr>
+          <tr><td>Role</td><td>Quantum bus</td><td>Qubit + coupler</td><td>Qubit + nonlinear coupler</td></tr>
+          <tr><td>Kerr</td><td>None</td><td>Native (from junction)</td><td>Native, larger</td></tr>
+          <tr><td>Hilbert dim. for sim</td><td>$N_\text{cut} = 5$–$10$</td><td>$N_\text{cut} = 4$</td><td>$\dim = 40$–$100$ (or 2 after projection)</td></tr>
+          <tr><td>Fab maturity</td><td>★★★★★</td><td>★★★★★</td><td>★★★☆☆</td></tr>
+          <tr><td>Sensitivity to flux noise</td><td>None</td><td>Low (split design)</td><td>Sweet spot at half-flux</td></tr>
+          <tr><td>Sensitivity to charge noise</td><td>None</td><td>Exponentially suppressed</td><td>None at half-flux</td></tr>
+          <tr><td>$T_1$</td><td>$Q$-limited (~ms)</td><td>50–500 µs</td><td>up to 1–2 ms</td></tr>
+          <tr><td>Best as</td><td>Spin–spin bus, memory</td><td>Workhorse qubit; mediator</td><td>Long-lived qubit; protected gate platform</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout--tip">
+        <div class="callout__head"><i class="fa fa-route"></i> Roadmap recommendation</div>
+        <p style="margin:0;">
+          Start with <strong>bare LC + vanadyl spin</strong> for the cleanest physics demonstration of cavity-mediated coupling.
+          Move to <strong>transmon + LC + spin</strong> once dispersive control is needed (single-shot readout, parametric gates).
+          Reserve <strong>fluxonium</strong> for the regime where transmon Kerr / leakage start to limit gate fidelity.
+        </p>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="code">
+      <h2>6 · In code: templates (M4, shipped)</h2>
+
+      <p>Each template returns a <code>(sites, H_terms, L_terms)</code> bundle
+      that can be combined with <code>merge()</code>.  The example below builds
+      a transmon ↔ LC bus ↔ vanadyl spin chain:</p>
+
+      <div class="code-block">
+<pre><code class="language-python">from lindblad_ttn import LindbladTTN
+from lindblad_ttn.templates import (
+    transmon, bare_lc, vanadyl_spin, merge,
+)
+
+# Three independent bundles
+t_sites, H_t, L_t = transmon(omega_q=2*3.1416*5e9, alpha=2*3.1416*(-300e6),
+                             N_cut=4, T1=100e-6, name="t0")
+c_sites, H_c, L_c = bare_lc(omega_c=2*3.1416*4.8e9, N_cut=8,
+                            kappa=2*3.1416*1e5, name="c0")
+s_sites, H_s, L_s = vanadyl_spin(omega_q=2*3.1416*5.05e9, T1=1e-3, T2=7e-4,
+                                 name_e="vo")
+
+# Concatenate site lists and term dicts
+sites, H_terms, L_terms = merge((t_sites, H_t, L_t),
+                                (c_sites, H_c, L_c),
+                                (s_sites, H_s, L_s))
+
+# (Inter-component couplings g·sp·a + g·sm·a† added by the user.)
+solver = LindbladTTN(
+    sites=sites, H_terms=H_terms, L_terms=L_terms,
+    bond_dim=16, topology="train", strategy="ps1",
+)</code></pre>
+      </div>
+
+      <p>For the dispersive limit there is a single-call helper:</p>
+      <div class="code-block">
+<pre><code class="language-python">from lindblad_ttn.templates import dispersive_readout
+
+sites, H_terms, L_terms = dispersive_readout(
+    omega_q=2*3.1416*5e9, omega_c=2*3.1416*4.8e9, chi=2*3.1416*1e6,
+    N_cut=6, kappa=2*3.1416*1e5,
+)</code></pre>
+      </div>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <a href="molecular-spins.html"><small>← Previous</small> Molecular spins</a>
+      <a href="coupling-regimes.html"><small>Next →</small> Coupling regimes</a>
+    </nav>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__bottom">
+      <span class="footer__copyright">© 2026 LindbladTTN contributors. MIT License.</span>
+    </div>
+  </footer>
+
+</body>
+</html>
